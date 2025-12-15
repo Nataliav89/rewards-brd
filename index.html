@@ -1,0 +1,350 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BRD — Rewards Automation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <aside class="sidebar" aria-label="Section navigation">
+    <div class="brand">Rewards Automation BRD</div>
+    <nav>
+      <ol class="toc">
+        <li><a href="#sec-1">1. Overview</a></li>
+        <li><a href="#sec-2">2. Problem & Context</a></li>
+        <li><a href="#sec-3">3. Goals & Non-Goals</a></li>
+        <li><a href="#sec-4">4. Personas</a></li>
+        <li><a href="#sec-5">5. Scope</a></li>
+        <li><a href="#sec-6">6. Requirements</a></li>
+        <li><a href="#sec-7">7. Success Metrics</a></li>
+        <li><a href="#sec-8">8. Dependencies</a></li>
+        <li><a href="#sec-9">9. Risks & Decisions</a></li>
+        <li><a href="#sec-10">10. Rollout</a></li>
+        <li><a href="#sec-11">11. Analytics</a></li>
+        <li><a href="#sec-12">12. Support & Operations</a></li>
+      </ol>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="page-header">
+      <h1>Rewards Automation — Business Requirements</h1>
+      <div class="meta">
+        <span class="pill">Owner: Tech/Product Team</span>
+        <span class="pill">Status: Draft</span>
+        <span class="pill">Last updated: 2025-12-15</span>
+        <span class="pill priority">High Priority</span>
+      </div>
+    </header>
+
+    <section id="sec-1" class="card section" tabindex="-1" aria-labelledby="s1">
+      <div class="section-badge">1</div>
+      <h2 id="s1">Overview</h2>
+      <p>Automate reward payment processing when clients meet eligibility criteria, removing manual steps and reducing payout latency.</p>
+    </section>
+
+    <section id="sec-2" class="card section" tabindex="-1" aria-labelledby="s2">
+      <div class="section-badge">2</div>
+      <h2 id="s2">Problem & Context</h2>
+      <p>Manual payouts cause delays, increase operational overhead, and create customer dissatisfaction during peak campaigns.</p>
+      <p><strong>Example:</strong> With 10,000 eligible users at 20% conversion and an average $X reward, the system must pre-fund ~$2,000 and trigger payouts automatically within minutes of eligibility.</p>
+    </section>
+
+    <section id="sec-3" class="card section" tabindex="-1" aria-labelledby="s3">
+      <div class="section-badge">3</div>
+      <h2 id="s3">Goals & Non-Goals</h2>
+      <ul>
+        <li><strong>Goals:</strong> Reduce payout latency to &lt; 5 minutes; ensure auditable event→payout traceability; minimize manual handling.</li>
+        <li><strong>Non-Goals:</strong> Redesign external rewards catalog; change partner bank settlement rails.</li>
+      </ul>
+    </section>
+
+    <section id="sec-4" class="card section" tabindex="-1" aria-labelledby="s4">
+      <div class="section-badge">4</div>
+      <h2 id="s4">Personas</h2>
+      <ul>
+        <li><strong>End User:</strong> Receives timely reward payouts post-qualification.</li>
+        <li><strong>Ops Analyst:</strong> Monitors payout queues and investigates exceptions.</li>
+        <li><strong>Finance:</strong> Manages pre-funding and reconciliations.</li>
+      </ul>
+    </section>
+
+    <section id="sec-5" class="card section" tabindex="-1" aria-labelledby="s5">
+      <div class="section-badge">5</div>
+      <h2 id="s5">Scope</h2>
+      <ul>
+        <li>Event ingestion from qualification sources</li>
+        <li>Eligibility evaluation and idempotency</li>
+        <li>Automatic payout trigger & ledger entry</li>
+        <li>Notifications and audit trail</li>
+      </ul>
+    </section>
+
+    <section id="sec-6" class="card section" tabindex="-1" aria-labelledby="s6">
+      <div class="section-badge">6</div>
+      <h2 id="s6">Requirements</h2>
+      <h3>Functional</h3>
+      <ul>
+        <li id="FR-001"><strong>FR-001:</strong> Ingest qualification events via REST and queue.</li>
+        <li id="FR-002"><strong>FR-002:</strong> Evaluate eligibility and dedupe with idempotency keys.</li>
+        <li id="FR-003"><strong>FR-003:</strong> Trigger payout to wallet/bank rails with status callbacks.</li>
+        <li id="FR-004"><strong>FR-004:</strong> Record double-entry ledger movements.</li>
+        <li id="FR-005"><strong>FR-005:</strong> Notify users (push/email) upon payout success/failure.</li>
+      </ul>
+      <h3>Non-Functional</h3>
+      <ul>
+        <li id="NFR-001"><strong>NFR-001:</strong> P95 API latency &lt; 300ms for ingestion.</li>
+        <li id="NFR-002"><strong>NFR-002:</strong> Process 100 rps steady; burst 5× for 10 minutes.</li>
+        <li id="NFR-003"><strong>NFR-003:</strong> Availability ≥ 99.9% monthly.</li>
+        <li id="NFR-004"><strong>NFR-004:</strong> Full auditability for 2 years; PII encrypted at rest.</li>
+      </ul>
+      <div class="callout decision">Decision: Use feature flag to enable per cohort.</div>
+    </section>
+
+    <section id="sec-7" class="card section" tabindex="-1" aria-labelledby="s7">
+      <div class="section-badge">7</div>
+      <h2 id="s7">Success Metrics</h2>
+      <ul>
+        <li>Payout latency median &lt; 2 minutes; P95 &lt; 5 minutes.</li>
+        <li>&gt;98% automated payouts; &lt;2% manual interventions.</li>
+        <li>CSAT for rewards +10% after launch.</li>
+      </ul>
+    </section>
+
+    <section id="sec-8" class="card section" tabindex="-1" aria-labelledby="s8">
+      <div class="section-badge">8</div>
+      <h2 id="s8">Dependencies</h2>
+      <ul>
+        <li>Banking partner API for payouts</li>
+        <li>Event source from qualification service</li>
+        <li>Observability stack for traces/metrics/logs</li>
+      </ul>
+    </section>
+
+    <section id="sec-9" class="card section" tabindex="-1" aria-labelledby="s9">
+      <div class="section-badge">9</div>
+      <h2 id="s9">Risks & Decisions</h2>
+      <div class="callout risk">Risk: Model drift in eligibility rules causing over-payouts.</div>
+      <div class="callout risk">Risk: Insufficient pre-funding during peak periods.</div>
+      <div class="callout decision">Decision: Implement throttling + dead-letter queue with retries.</div>
+    </section>
+
+    <section id="sec-10" class="card section" tabindex="-1" aria-labelledby="s10">
+      <div class="section-badge">10</div>
+      <h2 id="s10">Rollout</h2>
+      <ol>
+        <li>Internal dry-run with sandbox payouts</li>
+        <li>Beta cohort 5% traffic</li>
+        <li>Gradual ramp to 100% with guardrails</li>
+      </ol>
+    </section>
+
+    <section id="sec-11" class="card section" tabindex="-1" aria-labelledby="s11">
+      <div class="section-badge">11</div>
+      <h2 id="s11">Analytics</h2>
+      <ul>
+        <li>Event→payout conversion funnel</li>
+        <li>Payout latency histogram</li>
+        <li>Notification delivery & open rates</li>
+      </ul>
+    </section>
+
+    <section id="sec-12" class="card section" tabindex="-1" aria-labelledby="s12">
+      <div class="section-badge">12</div>
+      <h2 id="s12">Support & Operations</h2>
+      <ul>
+        <li>Runbook for payout failures & reconciliation</li>
+        <li>Alerting: DLQ growth, pre-fund balance, partner errors</li>
+        <li>SLOs: ingestion latency, payout success rate</li>
+      </ul>
+    </section>
+
+    <button class="back-to-top" aria-label="Back to top">↑</button>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+/* styles.css */
+:root{
+  /* Base */
+  --bg:#0D1324;
+  --panel:#0F162B;
+  --text:#E6EAF2;
+  --muted:#9AA6BF;
+  --border:rgba(154,166,191,.16);
+
+  /* Brand */
+  --brand:#27FB6B;        /* primary accent (green) */
+  --brand-strong:#1fd85b;
+  --action:#296BFF;       /* secondary (blue) */
+  --brand-deep:#0D1752;
+
+  /* Effects */
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+  --glow:0 8px 28px rgba(39,251,107,.22);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font:16px/1.6 "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--text);
+  background:linear-gradient(180deg, #0B1020, var(--bg));
+  display:flex; min-height:100vh;
+}
+
+/* Sidebar */
+.sidebar{
+  position:sticky; top:0; align-self:flex-start;
+  width:280px; min-height:100vh; padding:24px 16px;
+  background:var(--panel); border-right:1px solid var(--border);
+}
+.brand{font-weight:700; letter-spacing:.2px; margin-bottom:16px}
+.toc{list-style:none; padding:0; margin:0}
+.toc li{margin:4px 0}
+.toc a{
+  display:block; padding:10px 12px 10px 16px; border-radius:10px;
+  color:var(--muted); text-decoration:none; position:relative;
+  transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.toc a::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+  background:transparent; border-radius:2px;
+  transition: background-color .2s ease, box-shadow .25s ease, width .2s ease;
+}
+.toc a:hover{ background:#0e2633; color:var(--brand); }
+.toc a:hover::before{ background:var(--brand); width:6px; box-shadow:0 0 12px rgba(39,251,107,.6); }
+.toc a.active{ background:#0e2633; color:var(--brand); }
+.toc a.active::before{ background:var(--brand); width:6px; box-shadow:0 0 16px rgba(39,251,107,.65); }
+
+/* Content */
+.content{flex:1; padding:32px 40px; max-width:1100px; margin:0 auto; position:relative}
+.page-header{margin-bottom:16px}
+.pill{
+  display:inline-block; padding:4px 10px; border-radius:999px;
+  background:rgba(154,166,191,.15); color:#cbd5e1; margin-right:8px; font-size:12px
+}
+.pill.priority{ background:rgba(255,214,0,.2); color:#ffe082; font-weight:600 }
+
+.section{ scroll-margin-top:20px; }
+.card{
+  background:rgba(15,22,43,.9);
+  border:1px solid var(--border);
+  border-radius:16px; padding:24px; margin:18px 0 24px;
+  box-shadow:var(--shadow);
+  transition: transform .2s ease, box-shadow .25s ease, border-color .25s ease, background-color .25s ease;
+}
+.card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(39,251,107,.35);
+  box-shadow:0 12px 36px rgba(39,251,107,.22);
+}
+.card:focus{ outline:2px solid var(--action) }
+
+.section.active{
+  border-color: rgba(39,251,107,.55);
+  box-shadow: 0 0 0 1px rgba(39,251,107,.35), 0 0 24px rgba(39,251,107,.28), 0 10px 30px rgba(0,0,0,.35);
+}
+
+.section-badge{
+  width:44px; height:44px; border-radius:999px;
+  background:linear-gradient(135deg, var(--brand), var(--action));
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; margin-bottom:8px; color:#012; font-size:18px;
+  box-shadow:0 4px 14px rgba(41,107,255,.35);
+  will-change: transform, box-shadow;
+}
+
+/* Badge pulse animation */
+.section.active .section-badge{ animation: badge-pulse .42s ease-out 1; }
+@keyframes badge-pulse{
+  0%{ transform:scale(1); box-shadow:0 0 0 0 rgba(39,251,107,0), 0 4px 14px rgba(41,107,255,.35); }
+  50%{ transform:scale(1.06); box-shadow:0 0 0 6px rgba(39,251,107,.22), 0 6px 18px rgba(39,251,107,.35); }
+  100%{ transform:scale(1); box-shadow:0 0 0 0 rgba(39,251,107,0), 0 4px 14px rgba(41,107,255,.35); }
+}
+
+h1,h2,h3{margin:8px 0 6px}
+h2{font-size:22px}
+h3{font-size:16px; color:#cbd5e1}
+code, pre, .code{ font-family:"Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.callout{padding:12px 14px; border-radius:12px; margin:10px 0}
+.callout.risk{background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.35)}
+.callout.decision{background:rgba(41,107,255,.12); border:1px solid rgba(41,107,255,.35)}
+
+.back-to-top{
+  position:fixed; right:24px; bottom:24px; width:40px; height:40px;
+  border-radius:999px; border:0; color:#001; font-weight:700;
+  background:var(--brand); cursor:pointer; display:none;
+  box-shadow:0 0 10px rgba(39,251,107,.4);
+}
+.back-to-top:hover{ background:var(--brand-strong); box-shadow:0 0 16px rgba(39,251,107,.6); }
+.back-to-top.show{ display:block }
+
+/* Responsive */
+@media (max-width: 980px){
+  .sidebar{ position:fixed; left:0; top:0; z-index:10; width:240px }
+  body{ padding-left:240px }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important }
+}
+
+/* Print */
+@media print{
+  :root{ --bg:#fff; --panel:#fff; --text:#111827; --muted:#374151; }
+  .sidebar,.back-to-top{ display:none }
+  body{ background:#fff }
+}
+// app.js
+// Scrollspy + active link highlight + badge pulse retrigger + back-to-top
+const tocLinks = Array.from(document.querySelectorAll('.toc a'));
+const sections = tocLinks
+  .map(a => document.querySelector(a.getAttribute('href')))
+  .filter(Boolean);
+
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const id = '#' + entry.target.id;
+    const link = document.querySelector(`.toc a[href="${id}"]`);
+    if (!link) return;
+
+    if (entry.isIntersecting) {
+      // Sidebar active
+      tocLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      // Section active (for glow + pulse)
+      sections.forEach(s => s.classList.remove('active'));
+      entry.target.classList.add('active');
+
+      // Retrigger badge animation
+      const badge = entry.target.querySelector('.section-badge');
+      if (badge){
+        badge.style.animation = 'none';
+        badge.offsetHeight; // force reflow
+        badge.style.animation = '';
+      }
+
+      // Update fragment without page jump
+      history.replaceState(null, '', id);
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+sections.forEach(sec => obs.observe(sec));
+
+// Back to top
+const toTop = document.querySelector('.back-to-top');
+window.addEventListener('scroll', () => {
+  toTop.classList.toggle('show', window.scrollY > 600);
+});
+toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
